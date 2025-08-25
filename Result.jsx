@@ -1,20 +1,17 @@
 import React from 'react'
-import { useLocation, Link } from 'react-router-dom'
-import FeedbackBox from '../components/FeedbackBox.jsx'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 function Result() {
   const location = useLocation()
-  const { score, feedbackText } = location.state || { score: "-", feedbackText: "Kein Ergebnis" }
+  const navigate = useNavigate()
+  const result = location.state || { score: 0, feedbackText: "Kein Feedback erhalten." }
 
   return (
     <div>
-      <FeedbackBox score={score} feedbackText={feedbackText} />
-      <Link to="/interview">
-        <button>Neues Interview starten</button>
-      </Link>
-      <Link to="/">
-        <button>Zurück zur Startseite</button>
-      </Link>
+      <h2>Ergebnis</h2>
+      <p><strong>Score:</strong> {result.score}</p>
+      <p><strong>Feedback:</strong> {result.feedbackText}</p>
+      <button onClick={() => navigate("/interview")}>Neues Interview starten</button>
     </div>
   )
 }

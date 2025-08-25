@@ -3,34 +3,40 @@ import React, { useRef, useState } from 'react'
 function CameraView({ onStopRecording }) {
   const videoRef = useRef(null)
   const mediaRecorderRef = useRef(null)
-  const [recording, setRecording] = useState(false)
   const [startTime, setStartTime] = useState(null)
 
-  async function startCamera() {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    videoRef.current.srcObject = stream
-    videoRef.current.play()
-    mediaRecorderRef.current = new MediaRecorder(stream)
-    setStartTime(Date.now())
-    setRecording(true)
-    mediaRecorderRef.current.start()
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      videoRef.current.srcObject = stream
+      videoRef.current.play()
+
+      setStartTime(Date.now())
+
+      mediaRecorderRef.current = new MediaRecorder(stream)
+      mediaRecorderRef.current.start()
+    } catch (err) {
+      console.error("Kamera-/Mikrofonfehler:", err)
+    }
   }
 
   function stopRecording() {
-    mediaRecorderRef.current.stop()
-    setRecording(false)
-    const duration = Math.round((Date.now() - startTime) / 1000)
-    onStopRecording({ duration: duration, eyeContact: true })
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop()
+    }
+
+    const duration = Math.round((Date.now() - startTime) / 1000) // Dauer in Sekunden
+    const metadata = { duration: duration, eyeContact: true } // EyeContact = Fake-Wert für Demo
+    onStopRecording(metadata)
   }
 
   return (
     <div>
-      <video ref={videoRef} width="320" height="240" autoPlay muted />
-      {!recording ? (
-        <button onClick={startCamera}>Aufnahme starten</button>
-      ) : (
+      <video ref={videoRef} width="400" height="300" autoPlay muted></video>
+      <div>
+        <button onClick={startRecording}>Aufnahme starten</button>
         <button onClick={stopRecording}>Aufnahme stoppen</button>
-      )}
+      </div>
     </div>
   )
 }
